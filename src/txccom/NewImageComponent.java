@@ -21,13 +21,11 @@ public class NewImageComponent extends JComponent {
         public Image img;			//图片
         public Rectangle2D imgBox;  //图片盒子模型
     }
-
     private ImgGrid[] imgObjArray;       //9图片对象集合
     private SudokuExt aimSudoku;            //拼图完成时候的SudokuExt的状态
     private JPanel panel;
     private JButton recoverButton;		//复位按钮
     private JButton helpButton;			//帮助按钮
-
     public NewImageComponent(){
         setLayout(new BorderLayout());
         panel = new JPanel();
