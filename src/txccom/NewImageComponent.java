@@ -1,4 +1,9 @@
 package txccom;
+
+import txc.xxy.model.SudokuExt;
+import txc.xxy.service.SudokuService;
+
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -7,16 +12,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Stack;
-import java.util.Timer;
 import java.util.TimerTask;
-
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-
-import txc.xxy.model.SudokuExt;
-import txc.xxy.service.SudokuService;
 public class NewImageComponent extends JComponent {
 
     private class ImgGrid {
@@ -26,28 +22,14 @@ public class NewImageComponent extends JComponent {
         public Rectangle2D imgBox;  //图片盒子模型
     }
 
-    private static final int DEFAULT_WIDTH = 300;
-    private static final int DEFAULT_HEIGHT = 200;
-    private SudokuExt startModel;
-
     private ImgGrid[] imgObjArray;       //9图片对象集合
-
+    private SudokuExt aimSudoku;            //拼图完成时候的SudokuExt的状态
     private JPanel panel;
     private JButton recoverButton;		//复位按钮
     private JButton helpButton;			//帮助按钮
 
-
-
     public NewImageComponent(){
         setLayout(new BorderLayout());
-
-        /*int [][] jieshu = {
-                {1,4,7},
-                {2,5,8},
-                {3,6,9}
-        };
-        startModel = new SudokuExt(jieshu, null, null);*/
-
         panel = new JPanel();
         recoverButton = new JButton("recover");
         recoverButton.setVisible(true);
@@ -60,12 +42,9 @@ public class NewImageComponent extends JComponent {
         recoverButton.addActionListener(action);
         helpButton.addActionListener(new aotuAction());
         addMouseListener(new MouseHandler());
-
         //初始化
-       initImgObjArray();
-
+        initImgObjArray();
         repaint();
-
         //随机打乱图片模型
         daluan();
         repaint();
@@ -89,13 +68,24 @@ public class NewImageComponent extends JComponent {
                 }
             }
         }
+
+        //初始化ImgObjArray的时候也初始化aimSudoku
+        aimSudoku = getSudokuModel();
     }
 
-
-
+    /**
+     * 通过ImgObjArray获取九宫格模型
+     */
+    private SudokuExt getSudokuModel(){
+        int[][] gezi = new int[3][3];
+        for(int i=0; i<imgObjArray.length; i++){
+            ImgGrid grid = imgObjArray[i];
+            gezi[grid.x][grid.y] = i;
+        }
+        return new SudokuExt(gezi,null, null);
+    }
 
     /**
-
      * @Title: daluan
      * @Description: 随机打乱图片位置
      * @param:    设定文件
@@ -112,22 +102,25 @@ public class NewImageComponent extends JComponent {
         }
     }
 
+    @Override
     public void paintComponent(Graphics g){
         Graphics2D g2 = (Graphics2D) g;
         int width = 100;
         for(int i=0;i<9;i++){
             ImgGrid imgO = imgObjArray[i];
             if(imgO.img != null){
-                g.drawImage(imgO.img, (imgO.x+1)*width, (imgO.y+1)*width, width, width, null);
+                g.drawImage(imgO.img, (imgO.y+1)*width, (imgO.x+1)*width, width, width, null);
             }
-            imgO.imgBox = new Rectangle2D.Double((imgO.x+1)*width, (imgO.y+1)*width,width,width);
+            imgO.imgBox = new Rectangle2D.Double((imgO.y+1)*width, (imgO.x+1)*width,width,width);
             g2.draw(imgO.imgBox);
         }
     }
 
     public int dedao(Point2D p){
         for (int i=0;i<9;i++){
-            if(imgObjArray[i].imgBox.contains(p)) return i;
+            if(imgObjArray[i].imgBox.contains(p)){
+                return i;
+            }
         }
         return 8;
     }
@@ -138,16 +131,15 @@ public class NewImageComponent extends JComponent {
      * @param index:需要移动的格子的index
      */
     public void yidong(int index){
-        if (index==8) return;
-        //int xuhao = index;
+        if (index==8) {
+            return;
+        }
 
         ImgGrid nullGrid = imgObjArray[8];
         ImgGrid moveGrid = imgObjArray[index];
 
         //判断位置是否合法-移动的盒子需要在空白格子的周围
         if(isNearby(nullGrid, moveGrid)){
-            //待理解
-            //startModel.ChangeModel(xuhao+1);
             //交换ImgGrid的xy坐标
             int tempX = nullGrid.x;
             int tempY = nullGrid.y;
@@ -182,25 +174,25 @@ public class NewImageComponent extends JComponent {
         //通过方向找到需要交换位置的盒子坐标
         int moveIndexX = nullGrid.x;
         int moveIndexY = nullGrid.y;
-        if(fangxiang.equals("上移")){
+        if(fangxiang.equals("右移")){
           if(nullGrid.y==0){
               //如果y坐标为0则不存在上移动的操作
               return;
           }
           moveIndexY = nullGrid.y - 1;
-        }else if(fangxiang.equals("下移")){
+        }else if(fangxiang.equals("左移")){
             if(nullGrid.y==2){
                 //如果y坐标为2则不存在下移动的操作
                 return;
             }
             moveIndexY = nullGrid.y + 1;
-        }else if(fangxiang.equals("左移")){
+        }else if(fangxiang.equals("下移")){
             if(nullGrid.x==0){
                 //如果x坐标为0则不存在左移动的操作
                 return;
             }
             moveIndexX = nullGrid.x - 1;
-        }else if(fangxiang.equals("右移")){
+        }else if(fangxiang.equals("上移")){
             if(nullGrid.x==2){
                 //如果x坐标为2则不存在右移动的操作
                 return;
@@ -218,8 +210,6 @@ public class NewImageComponent extends JComponent {
            }
         }
         if(isNearby(nullGrid, moveGrid)){
-            //待理解 todo
-            //startModel.ChangeModel(xuhao+1);
             //交换ImgGrid的xy坐标
             int tempX = nullGrid.x;
             int tempY = nullGrid.y;
@@ -232,29 +222,22 @@ public class NewImageComponent extends JComponent {
 
     }
 
-
-
-
-    public Dimension getPreferredSize(){
-        return new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-    }
-
     //鼠标事件
     private class MouseHandler extends MouseAdapter {
+        @Override
         public void mousePressed(MouseEvent event) {
             int ii = dedao(event.getPoint());
             yidong(ii);
         }
+        @Override
         public void mouseClicked(MouseEvent event) {
-	    	  /*if(event.getClickCount()==4){
-	    	  int ii = dedao(event.getPoint());
-	    	  swap(event.getPoint(),ii);
-	    	  }*/
+
         }
     }
 
     //复位按钮事件
     private class recoverAction implements ActionListener{
+        @Override
         public void actionPerformed(ActionEvent event){
            /* int [][] jieshu = {{1,4,7},{2,5,8},{3,6,9}};
             startModel = new SudokuExt(jieshu, null, null);*/
@@ -265,12 +248,13 @@ public class NewImageComponent extends JComponent {
 
     // 自动拼图提示--帮助按钮
     private class aotuAction implements ActionListener{
+        @Override
         public void actionPerformed(ActionEvent event){
-            /*Stack<String> stack = new Stack<>();
-            int [][] jieshu = {{1,4,7},{2,5,8},{3,6,9}};
-            SudokuExt end = new SudokuExt(jieshu, null, null);
+            Stack<String> stack = new Stack<>();
             SudokuService ss = new SudokuService();
-            SudokuExt jie = ss.jieda(new SudokuExt(startModel.getGezi(), null, null), end);
+            SudokuExt start = getSudokuModel();
+            System.out.println(start.toString());
+            SudokuExt jie = ss.jieda(start, aimSudoku);
             int bushu=0; //需要的步数
             while(jie.hasOldGezi()){
                 stack.push(jie.getTishi());
@@ -282,8 +266,8 @@ public class NewImageComponent extends JComponent {
             System.out.println("一共需要"+bushu+"步");
             //自动解答
             MyTask task = new MyTask(stack);
-            Timer timer = new Timer();
-            timer.schedule(task, 2000, 2000);*/
+            java.util.Timer timer = new java.util.Timer();
+            timer.schedule(task, 2000, 2000);
         }
     }
 

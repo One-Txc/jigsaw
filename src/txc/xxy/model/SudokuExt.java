@@ -24,17 +24,9 @@ public class SudokuExt extends Sudoku{
 
 	private SudokuExt oldGezi;
 	private String tishi; //移动提示
-	
-	public String getTishi() {
-		return tishi;
-	}
-	public void setTishi(String tishi) {
-		this.tishi = tishi;
-	}
+
 	/**
-	  * 创建一个新的实例 SudokuExt. 
-	  * <p>Title: </p>
-	  * <p>Description: </p>
+	  * 创建一个新的实例 SudokuExt.
 	  * @param gezi
 	  */
 	public SudokuExt(int[][] gezi,SudokuExt geziOld, String tishi) {
@@ -42,16 +34,34 @@ public class SudokuExt extends Sudoku{
 		this.oldGezi = geziOld;
 		this.tishi = tishi;
 	}
-	public SudokuExt getOldGezi() {
-		return oldGezi;
-	}
-	public void setOldGezi(SudokuExt oldGezi) {
-		this.oldGezi = oldGezi;
-	}
 	public boolean hasOldGezi(){
 		if(oldGezi == null){
 			return false;
 		}
 		return true;
+	}
+
+
+
+	public String getTishi() {
+		return tishi;
+	}
+	public SudokuExt getOldGezi() {
+		return oldGezi;
+	}
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
+
+	//判断状态是否一样
+	@Override
+	public boolean equals(Object obj) {
+		return super.equals(obj);
+	}
+
+	@Override
+	public String toString() {
+		return super.toString();
 	}
 }

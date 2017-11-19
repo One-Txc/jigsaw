@@ -12,9 +12,9 @@
 
 package txc.xxy.service;
 
-import java.util.HashSet;
-
 import txc.xxy.model.SudokuExt;
+
+import java.util.HashSet;
 
 /**
   * @ClassName: SudokuService
@@ -32,33 +32,33 @@ public class SudokuService {
 	  * @return
 	  */
 	public HashSet<SudokuExt> sudokuChange(SudokuExt sudokeExt){
-		HashSet<SudokuExt> SudokuExts = new HashSet<SudokuExt>();
+		HashSet<SudokuExt> SudokuExts = new HashSet<>();
 		SudokuExt gezi = sudokeExt;
 		int x = sudokeExt.getX();
 		int y = sudokeExt.getY();
 		if((x-1)>=0){
-			int[][] gezi1 = gezi.getGezi().clone();
+			int[][] gezi1 = gezi.cloneGezi();
 			int t = gezi1[x][y];
 			gezi1[x][y] = gezi1[x-1][y];
 			gezi1[x-1][y] = t;
 			SudokuExts.add(new SudokuExt(gezi1, gezi, "下移"));
 		}
-		if((x+1)<3){
-			int[][] gezi1 = gezi.getGezi().clone();
+		if((x+1)<=2){
+			int[][] gezi1 = gezi.cloneGezi();
 			int t = gezi1[x][y];
 			gezi1[x][y] = gezi1[x+1][y];
 			gezi1[x+1][y] = t;
 			SudokuExts.add(new SudokuExt(gezi1, gezi, "上移"));
 		}
 		if((y-1)>=0){
-			int[][] gezi1 = gezi.getGezi().clone();
+			int[][] gezi1 = gezi.cloneGezi();
 			int t = gezi1[x][y];
 			gezi1[x][y] = gezi1[x][y-1];
 			gezi1[x][y-1] = t;
 			SudokuExts.add(new SudokuExt(gezi1, gezi, "右移"));
 		}
-		if((y+1)<3){
-			int[][] gezi1 = gezi.getGezi().clone();
+		if((y+1)<=2){
+			int[][] gezi1 = gezi.cloneGezi();
 			int t = gezi1[x][y];
 			gezi1[x][y] = gezi1[x][y+1];
 			gezi1[x][y+1] = t;
@@ -68,28 +68,30 @@ public class SudokuService {
 	}
 	
 	public SudokuExt jieda(SudokuExt begin, SudokuExt end){
-		HashSet<SudokuExt> SudokuExts = new HashSet<SudokuExt>();
-		HashSet<SudokuExt> SudokuExtNew = new HashSet<SudokuExt>();
-		HashSet<SudokuExt> SudokuExt2 = new HashSet<SudokuExt>();
-		SudokuExts.add(begin);
-		if(begin.equals(end)){
-			return begin;
-		}
+
+		HashSet<SudokuExt> alreadyHandleList = new HashSet<>();			//已经处理的集合
+		HashSet<SudokuExt> needHandleList = new HashSet<>();			//待处理的集合
+		needHandleList.add(begin);
 		for(;;){
-			SudokuExtNew.clear();
-			for(SudokuExt s:SudokuExts){
-				SudokuExt2 = sudokuChange(s);
-				for(SudokuExt s2:SudokuExt2){
-					if(s2.equals(end)){
-						System.out.println("结束-----束结");
-						return s2;
+			for(SudokuExt sudoku:needHandleList){
+				if(sudoku.equals(end)){
+					System.out.println("结束-----束结");
+					return sudoku;
+				}
+				alreadyHandleList.add(sudoku);
+			}
+
+			HashSet<SudokuExt> sonOfNeedSudokuList = new HashSet<>(16);
+			for(SudokuExt sudoku:needHandleList){
+				HashSet<SudokuExt> newSudokuList = sudokuChange(sudoku);
+				for(SudokuExt newSudoku:newSudokuList){
+					if(!alreadyHandleList.contains(newSudoku)){
+						sonOfNeedSudokuList.add(newSudoku);
 					}
 				}
-				SudokuExtNew.addAll(SudokuExt2);
 			}
-			SudokuExtNew.removeAll(SudokuExts);
-			SudokuExts.clear();
-			SudokuExts.addAll(SudokuExtNew);
+			needHandleList = sonOfNeedSudokuList;
 		}
+
 	}
 }

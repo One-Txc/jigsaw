@@ -139,6 +139,7 @@ public class ImageComponent extends JComponent {
 		}
 	}
 
+	@Override
 	public void paintComponent(Graphics g){
 		Graphics2D g2 = (Graphics2D) g;
 		for(int i=0;i<8;i++){
@@ -186,22 +187,22 @@ public class ImageComponent extends JComponent {
 			 if((startModel.getX()+1)>=3){
 				 return;
 			 }
-			xuhao = (startModel.getGezi())[startModel.getX()+1][startModel.getY()];
+			xuhao = (startModel.cloneGezi())[startModel.getX()+1][startModel.getY()];
 		 }else if(fangxiang.equals("下移")){
 			 if((startModel.getX()-1)<0){
 				 return;
 			 }
-			 xuhao = (startModel.getGezi())[startModel.getX()-1][startModel.getY()];
+			 xuhao = (startModel.cloneGezi())[startModel.getX()-1][startModel.getY()];
 		 }else if(fangxiang.equals("左移")){
 			 if((startModel.getY()+1)>=3){
 				 return;
 			 }
-			xuhao = (startModel.getGezi())[startModel.getX()][startModel.getY()+1];
+			xuhao = (startModel.cloneGezi())[startModel.getX()][startModel.getY()+1];
 		 }else if(fangxiang.equals("右移")){
 			 if((startModel.getY()-1)<0){
 				 return;
 			 }
-			xuhao = (startModel.getGezi())[startModel.getX()][startModel.getY()-1];
+			xuhao = (startModel.cloneGezi())[startModel.getX()][startModel.getY()-1];
 		 }
     	  //变换格子模型
     	  startModel.ChangeModel(xuhao);
@@ -240,13 +241,15 @@ public class ImageComponent extends JComponent {
 	
 	
 
+	@Override
 	public Dimension getPreferredSize(){
 		return new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	}
 	
 	private class MouseHandler extends MouseAdapter
 	   {
-	      public void mousePressed(MouseEvent event)
+	      @Override
+		  public void mousePressed(MouseEvent event)
 	      {
 	         // add a new square if the cursor isn't inside a square
 	    	  int ii = dedao(event.getPoint());
@@ -254,7 +257,8 @@ public class ImageComponent extends JComponent {
 	      
 	      }
 
-	      public void mouseClicked(MouseEvent event)
+	      @Override
+		  public void mouseClicked(MouseEvent event)
 	      {
 	         // remove the imgBox square if double clicked
 	    	  /*if(event.getClickCount()==4){
@@ -265,6 +269,7 @@ public class ImageComponent extends JComponent {
 	   }
 
 	private class recoverAction implements ActionListener{
+		@Override
 		public void actionPerformed(ActionEvent event){
 			int [][] jieshu = {{1,4,7},{2,5,8},{3,6,9}};
 			startModel = new SudokuExt(jieshu, null, null);
@@ -284,13 +289,14 @@ public class ImageComponent extends JComponent {
 	
 	// 自动拼图提示
 	private class aotuAction implements ActionListener{
+		@Override
 		public void actionPerformed(ActionEvent event){
 			Stack<String> stack = new Stack<>();
 			
 			int [][] jieshu = {{1,4,7},{2,5,8},{3,6,9}};
 			SudokuExt end = new SudokuExt(jieshu, null, null);
 			SudokuService ss = new SudokuService();
-			SudokuExt jie = ss.jieda(new SudokuExt(startModel.getGezi(), null, null), end);
+			SudokuExt jie = ss.jieda(new SudokuExt(startModel.cloneGezi(), null, null), end);
 			int bushu=0; //需要的步数
 			while(jie.hasOldGezi()){
 				stack.push(jie.getTishi());
@@ -303,7 +309,7 @@ public class ImageComponent extends JComponent {
 			
 			//自动解答
 			MyTask task = new MyTask(stack);
-			Timer timer = new Timer();  
+			Timer timer = new Timer();
 	        timer.schedule(task, 2000, 2000);
 		}
 	}
